@@ -43,8 +43,11 @@ spec:
       containers:
       - name: sriov-device-plugin
         image: {{.SRIOVDevicePluginImage}}
+        command:
+        - sriovdp
         args:
-        - --log-level=10
+        - -logtostderr
+        - -v=10
         - --resource-prefix={{.ResourcePrefix}}
         - --config-file=/etc/pcidp/$(NODE_NAME)
         env:

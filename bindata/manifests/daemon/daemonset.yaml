@@ -1,4 +1,3 @@
----
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -40,7 +39,7 @@ spec:
       {{- end }}
       {{- end }}
       containers:
-      - name: sriov-cni
+      - name: cni
         image: {{.SRIOVCNIImage}}
         securityContext:
           privileged: true
@@ -51,10 +50,23 @@ spec:
         volumeMounts:
         - name: cnibin
           mountPath: /host/opt/cni/bin
-      - name: sriov-infiniband-cni
-        image: {{.SRIOVInfiniBandCNIImage}}
+      - name: install
+        image: {{.SRIOVCNIImage}}
+        command:
+        - /install.sh
         securityContext:
           privileged: true
+        env:
+        - name: SKIP_TLS_VERIFY
+          value: "true"
+        - name: INSTALL_CONFIG
+          value: "true"
+        - name: INSTALL_CNI
+          value: "true"
+        - name: WHEREABOUTS_LOOP
+          value: "true"
+        - name: WHEREABOUTS_NAMESPACE
+          value: "{{.Namespace}}"
         resources:
           requests:
             cpu: 10m
@@ -62,6 +74,8 @@ spec:
         volumeMounts:
         - name: cnibin
           mountPath: /host/opt/cni/bin
+        - name: cnietc
+          mountPath: /host/etc/cni/net.d
       - name: sriov-network-config-daemon
         image: {{.Image}}
         command:
@@ -102,3 +116,6 @@ spec:
       - name: cnibin
         hostPath:
           path: {{.CNIBinPath}}
+      - name: cnietc
+        hostPath:
+          path: /etc/cni/net.d

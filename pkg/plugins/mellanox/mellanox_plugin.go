@@ -164,7 +164,8 @@ func (p *MellanoxPlugin) OnNodeStateChange(new *sriovnetworkv1.SriovNetworkNodeS
 			glog.V(2).Infof("Changing TotalVfs %d to 0, doesn't require rebooting", fwNext.totalVfs)
 		}
 	}
-
+	// try do not reboot
+	needReboot = false
 	if needReboot {
 		needDrain = true
 	}
